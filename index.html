@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proje Yönetimi Testi</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f4f9; padding: 20px; line-height: 1.6; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; }
+        .question { margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .question p { font-weight: bold; margin-bottom: 10px; }
+        .options label { display: block; padding: 8px; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .options label:hover { background-color: #f0f0f0; }
+        input[type="radio"] { margin-right: 10px; }
+        #result { display: none; margin-top: 20px; padding: 20px; border-radius: 8px; text-align: center; font-size: 1.2em; font-weight: bold; }
+        .btn-submit { display: block; width: 100%; padding: 15px; background: #27ae60; color: white; border: none; border-radius: 5px; font-size: 1.1em; cursor: pointer; }
+        .btn-submit:hover { background: #219150; }
+        .correct { color: #27ae60; font-weight: bold; }
+        .wrong { color: #c0392b; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Proje Yönetimi Sınav Soruları</h1>
+    <form id="quizForm">
+        <div id="questionsContainer"></div>
+        <button type="button" class="btn-submit" onclick="showResults()">Testi Bitir ve Sonuçları Gör</button>
+    </form>
+    <div id="result"></div>
+</div>
+
+<script>
+    const questions = [
+        { q: "1. Sorun analizi aşağıdakilerden hangisini amaçlar? [cite: 1]", options: ["A) Sorunları yüzeysel olarak tanımlamayı [cite: 2]", "B) Mevcut durumun arzu edilen yönlerini ortaya koymayı [cite: 3]", "C) Sorunları neden-sonuç ilişkisi içinde incelemeyi [cite: 4]", "D) Sadece sonuçlara odaklanarak çözüm üretmeyi [cite: 5]"], answer: "C" },
+        { q: "2. Sorun analizi sürecinde 'başlangıç sorunu' nasıl belirlenir? [cite: 7]", options: ["A) Rastgele seçilen bir sorun başlangıç kabul edilir [cite: 8]", "B) Paydaşlar için öncelikli sorunlar tartışılarak seçilir [cite: 9]", "C) En kolay çözülebilen sorun seçilir [cite: 10]", "D) Sadece sonuç niteliğindeki sorunlar seçilir [cite: 11]"], answer: "B" },
+        { q: "3. Aşağıdakilerden hangisi akılcı (SMART) hedef değildir? [cite: 13]", options: ["A) Belirlilik [cite: 14]", "B) Ölçülebilir [cite: 15]", "C) İnsanlara ulaşması [cite: 16]", "D) Gerçekçilik [cite: 17]", "E) Zamana bağlılık [cite: 18]"], answer: "C" },
+        { q: "4. Aşağıdakilerden hangisi bir projenin temel özelliklerinden biri değildir? [cite: 20]", options: ["A) Tanımlı hedeflerinin olması [cite: 21]", "B) Süre ve bütçe açısından sınırsız olması [cite: 22]", "C) Sonuç odaklı olması [cite: 23]", "D) Önceden planlanmış olması [cite: 24]"], answer: "B" },
+        { q: "5. Proje Döngüsü Yönetimi (PCM) aşağıdakilerden hangisini ifade eder? [cite: 26]", options: ["A) Projelerin yalnızca uygulanma sürecini [cite: 27]", "B) Sadece bütçe planlamasını [cite: 28]", "C) Projelerin hazırlanması, uygulanması, izlenmesi ve değerlendirilmesini kapsayan yöntem [cite: 29]", "D) Proje yazımında kullanılan raporlama tekniğini [cite: 30]"], answer: "C" },
+        { q: "6. Aşağıdakilerden hangisi sorun analizinin temel amacını en doğru şekilde ifade eder? [cite: 32]", options: ["A) Mevcut durumu olduğu gibi kabul etmek [cite: 33]", "B) Sorunları hızlıca çözmek [cite: 34]", "C) Mevcut durum ile hedeflenen durum arasındaki farkı neden-sonuç ilişkisi içinde ortaya koymak [cite: 35]", "D) Yalnızca sorunların sonuçlarını listelemek [cite: 36]"], answer: "C" },
+        { q: "7. Aşağıdakilerden hangisi bir projenin temel özelliklerinden biri değildir? [cite: 38]", options: ["A) Tanımlı hedeflere ve beklenen sonuçlara sahip olması [cite: 39]", "B) Mali, teknik ve insan kaynakları açısından sınırlı olması [cite: 40]", "C) Sürekli ve tekrarlayan faaliyetlerden oluşması [cite: 41]", "D) Önceden planlanmış ve sonunda değerlendirmeye tabi tutulması [cite: 42]"], answer: "C" },
+        { q: "8. 'Kirleticiler kontrol edilmiyor' ifadesi, soru hiyerarşisinde hangi aşamayı temsil etmektedir? [cite: 43]", options: ["A) Sebep / Problem Tespiti [cite: 44]", "B) Vizyon Belirleme [cite: 45]", "C) Çözüm Önerisi [cite: 46]", "D) Proje Çıktısı [cite: 47]"], answer: "A" },
+        { q: "9. Projenin hayata geçirilmesiyle doğrudan elde edilecek olan çıktıları hangisi en iyi tanımlar? [cite: 49]", options: ["A) Projenin genel bütçesi ve maliyetleri [cite: 50]", "B) Proje ile birlikte elde edilecek hizmet ve ürünler [cite: 51]", "C) Proje süresince yapılacak olan tüm faaliyetler [cite: 52]", "D) Projenin başarısını etkileyen dışsal varsayımlar [cite: 53]"], answer: "B" },
+        { q: "10. Aşağıdakilerden hangisi tedarik prosedürlerinden biridir? [cite: 55]", options: ["A) Açık artırma [cite: 56]", "B) Toptancı tedarikleri [cite: 57]", "C) Alım satım işlemleri yapmak [cite: 58]", "D) Çevre kontratı [cite: 59]", "E) İthal mal tedarik etme [cite: 60]"], answer: "D" },
+        { q: "11. Projenin tanımlanmış bir çerçevede kalmasını sağlayan özellik hangisidir? [cite: 62]", options: ["A) Sadece basit sorunlara odaklanması [cite: 63]", "B) Değerlendirme sürecine tabi tutulmaması [cite: 64]", "C) Sınırsız bütçe ve esnek zaman yönetimi [cite: 65]", "D) Mali, teknik ve insan kaynakları açısından sınırlandırılmış olması [cite: 66]", "E) Uygulama sürecinde hedeflerin değiştirilmesi [cite: 67]"], answer: "D" },
+        { q: "12. PCM yaklaşımında, geleneksel planlamaya göre hangi temel değişim yaşanmıştır? [cite: 69]", options: ["A) Kalite yerine ödeme baskısının öne çıkarılması [cite: 70]", "B) Arz odaklı projelerden hedef odaklı projelere geçiş [cite: 71]", "C) Risklerin göz ardı edilmesi [cite: 72]", "D) Sürdürülebilirlik yerine kısa vadeli vizyonun benimsenmesi [cite: 73]", "E) Paydaş katılımının planlamadan çıkarılması [cite: 74]"], answer: "B" },
+        { q: "13. Hangisi PCM yaklaşımının benimsenme nedenlerinden biri değildir? [cite: 76]", options: ["A) Hedef odaklı planlama sağlaması [cite: 77]", "B) Doğrulanabilir göstergelerle ölçümü mümkün kılması [cite: 78]", "C) Riskler ve varsayımların dikkate alınması [cite: 79]", "D) Projelerin kısa vadeli ve esnek olmayan yapı ile yürütülmesi [cite: 80]"], answer: "D" },
+        { q: "14. Mantıksal Çerçeve Matrisi'ndeki 'Varsayımlar' için en doğru tanım hangisidir? [cite: 82]", options: ["A) Gerekli mali ve teknik kaynaklar [cite: 83]", "B) Kontrol dışı faktörler nedeniyle ortaya çıkabilecek koşullar ", "C) Elde edilmesi beklenen somut ürün ve hizmetler [cite: 85]", "D) Genel hedefi ölçmeye yarayan göstergeler [cite: 85]"], answer: "B" },
+        { q: "15. 'Sorun Ağacı' tekniğinde, ana sorunun altında yer alan kutular neyi temsil eder? [cite: 86]", options: ["A. Proje faaliyetleri [cite: 87]", "B. Sorunun etkileri [cite: 88]", "C. Projenin genel hedefleri [cite: 89]", "D. Sorunun nedenleri [cite: 90]"], answer: "D" },
+        { q: "16. Paydaş analizinde etkilenen veya etkileyen kişi ve kurumlar nasıl sınıflandırılır? [cite: 92]", options: ["A. Yalnızca proje ortakları ve iştirakçiler [cite: 93]", "B. Birincil, ikincil ve anahtar paydaşlar [cite: 94]", "C. Sadece iç ve dış paydaşlar [cite: 95]", "D. Sadece hedef kitle ve nihai yararlanıcılar [cite: 96]"], answer: "B" },
+        { q: "17. Aşağıdakilerden hangisi Hedef Analizinin amaçlarından biridir? [cite: 98]", options: ["A) Faaliyetlerin ayrıntılı listesini çıkarmak [cite: 99]", "B) Olumsuz durumları arzu edilen olumlu durumlara dönüştürmek [cite: 100]", "C) Sadece bütçe ve maliyet hesaplarını yapmak [cite: 101]", "D) Tüm riskleri ortadan kaldırmak [cite: 102]"], answer: "B" },
+        { q: "18. Aşağıdakilerden hangisi Paydaş Analizinin temel amaçlarından biridir? [cite: 104]", options: ["A) Faaliyet takvimini oluşturmak [cite: 105]", "B) Grupları, güçleri ve katılım stratejileriyle birlikte belirlemek [cite: 106]", "C) Sadece nihai yararlanıcı ekonomik durumunu analiz etmek [cite: 107]", "D) Teknik yapılabilirliği ölçmek [cite: 108]"], answer: "B" },
+        { q: "19. Hangisi proje kavramını diğer çalışmalardan ayıran özelliklerden değildir? [cite: 110]", options: ["A) Tanımlı hedef ve beklenen sonuçlar [cite: 111]", "B) Sınırlandırılmış kaynaklar [cite: 112]", "C) Sürekli ve tekrar eden bir faaliyet olması [cite: 113]", "D) Önceden planlanmış olması [cite: 114]"], answer: "C" },
+        { q: "20. Aşağıdakilerden hangisi Sorun Analizinin temel amacını en doğru ifade eder? [cite: 116]", options: ["A) Faaliyetlerin sıralı listesini oluşturmak [cite: 117]", "B) Mevcut durum ile arzulanan durum farkını neden-sonuç içinde ortaya koymak [cite: 118]", "C) Bütçe ve finansman kaynaklarını belirlemek [cite: 119]", "D) Sadece paydaşların beklentilerini tespit etmek [cite: 120]"], answer: "B" }
+    ];
+
+    const container = document.getElementById('questionsContainer');
+
+    questions.forEach((item, index) => {
+        const qDiv = document.createElement('div');
+        qDiv.className = 'question';
+        let optionsHtml = '';
+        item.options.forEach((opt) => {
+            const letter = opt.substring(0,1).toUpperCase();
+            optionsHtml += `
+                <label>
+                    <input type="radio" name="q${index}" value="${letter}">
+                    ${opt}
+                </label>
+            `;
+        });
+        qDiv.innerHTML = `<p>${item.q}</p><div class="options">${optionsHtml}</div>`;
+        container.appendChild(qDiv);
+    });
+
+    function showResults() {
+        let score = 0;
+        questions.forEach((item, index) => {
+            const selected = document.querySelector(`input[name="q${index}"]:checked`);
+            const qElements = document.getElementsByClassName('question')[index];
+            if (selected && selected.value === item.answer) {
+                score++;
+                qElements.style.color = "#27ae60";
+            } else {
+                qElements.style.color = "#c0392b";
+                const correctLabel = document.createElement('div');
+                correctLabel.className = 'correct';
+                correctLabel.innerText = "Doğru Cevap: " + item.answer;
+                qElements.appendChild(correctLabel);
+            }
+        });
+
+        const resultDiv = document.getElementById('result');
+        resultDiv.style.display = "block";
+        resultDiv.innerHTML = `Toplam Skoru: ${score} / ${questions.length}`;
+        resultDiv.style.backgroundColor = score > 15 ? "#d4edda" : "#f8d7da";
+        window.scrollTo(0, 0);
+    }
+</script>
+
+</body>
+</html>
